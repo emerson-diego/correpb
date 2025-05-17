@@ -76,7 +76,7 @@ def main():
     
     try:
         # Criar arquivo CSV
-        with open('eventos_brasilquecorre.csv', 'w', newline='', encoding='utf-8') as csvfile:
+        with open('data_collection/eventos_brasilquecorre.csv', 'w', newline='', encoding='utf-8') as csvfile:
             writer = csv.writer(csvfile, delimiter=';')
             writer.writerow(['Nome do Evento', 'Link de Inscrição', 'Link da Imagem', 'Data', 'Cidade', 'Distância', 'Organizador'])
             
