@@ -1,6 +1,7 @@
 import csv
 from datetime import datetime
 
+from evento_de_corrida import EventoDeCorrida
 from pymongo import MongoClient
 
 
@@ -20,26 +21,22 @@ def import_csv_to_mongodb(db, csv_file, fonte):
             
             # Converter cada linha para um documento MongoDB
             for row in reader:
-                # Verificar se já existe um evento com o mesmo nome
-                evento_existente = db.eventos.find_one({'nome_evento': row['Nome do Evento']})
-                
-                if not evento_existente:
-                    # Criar documento com os novos nomes de campos
-                    documento = {
-                        'nome_evento': row['Nome do Evento'],
-                        'url_inscricao': row['Link de Inscrição'],
-                        'url_imagem': row['Link da Imagem'],
-                        'data_realizacao': row['Data'],
-                        'cidade': row['Cidade'],
-                        'distancias': [row['Distância']] if row['Distância'] else [],
-                        'organizador': row['Organizador'],
-                        'site_coleta': fonte,
-                        'data_coleta': datetime.now()
-                    }
+                try:
+                    # Criar instância de EventoDeCorrida
+                    evento = EventoDeCorrida.from_csv_row(row, fonte)
                     
-                    # Inserir no MongoDB
-                    db.eventos.insert_one(documento)
-                    novos_eventos += 1
+                    # Verificar se já existe um evento com o mesmo nome
+                    evento_existente = db.eventos.find_one({'nome_evento': evento.nome_evento})
+                    
+                    if not evento_existente:
+                        # Converter para dicionário e inserir no MongoDB
+                        db.eventos.insert_one(evento.to_dict())
+                        novos_eventos += 1
+                        
+                except Exception as e:
+                    print(f"❌ Erro ao processar linha do CSV: {str(e)}")
+                    print(f"Conteúdo da linha: {row}")
+                    continue
                 
         print(f"✅ Dados de {fonte} processados com sucesso")
         print(f"📝 {novos_eventos} novos eventos adicionados")
