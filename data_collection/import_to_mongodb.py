@@ -21,15 +21,24 @@ def import_csv_to_mongodb(db, csv_file, fonte):
             # Converter cada linha para um documento MongoDB
             for row in reader:
                 # Verificar se já existe um evento com o mesmo nome
-                evento_existente = db.eventos.find_one({'Nome do Evento': row['Nome do Evento']})
+                evento_existente = db.eventos.find_one({'nome_evento': row['Nome do Evento']})
                 
                 if not evento_existente:
-                    # Adicionar campos de metadados
-                    row['fonte'] = fonte
-                    row['data_importacao'] = datetime.now()
+                    # Criar documento com os novos nomes de campos
+                    documento = {
+                        'nome_evento': row['Nome do Evento'],
+                        'url_inscricao': row['Link de Inscrição'],
+                        'url_imagem': row['Link da Imagem'],
+                        'data_realizacao': row['Data'],
+                        'cidade': row['Cidade'],
+                        'distancias': [row['Distância']] if row['Distância'] else [],
+                        'organizador': row['Organizador'],
+                        'site_coleta': fonte,
+                        'data_coleta': datetime.now()
+                    }
                     
                     # Inserir no MongoDB
-                    db.eventos.insert_one(row)
+                    db.eventos.insert_one(documento)
                     novos_eventos += 1
                 
         print(f"✅ Dados de {fonte} processados com sucesso")
