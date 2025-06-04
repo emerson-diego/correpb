@@ -62,17 +62,22 @@ class EventoDeCorrida:
     @classmethod
     def from_csv_row(cls, row: dict, fonte: str) -> 'EventoDeCorrida':
         """Cria uma instância de EventoDeCorrida a partir de uma linha do CSV"""
+        # Função auxiliar para tratar campos vazios
+        def get_value(key: str) -> str:
+            value = row.get(key, '')
+            return value if value and value.strip() else ''
+
         # Cria a instância mantendo a data como string
         return cls(
-            nome_evento=row['Nome do Evento'],
-            data_realizacao=row['Data'],
-            cidade=row['Cidade'],
+            nome_evento=get_value('Nome do Evento'),
+            data_realizacao=get_value('Data'),
+            cidade=get_value('Cidade'),
             estado='PB',  # Estado fixo para este projeto
-            organizador=row['Organizador'],
+            organizador=get_value('Organizador'),
             site_coleta=fonte,
             data_coleta=datetime.now(),
-            distancias=[row['Distância']] if row['Distância'] else [],
-            url_inscricao=row.get('Link de Inscrição'),
-            url_imagem=row.get('Link da Imagem'),
-            categoria=row.get('Categoria')
+            distancias=[get_value('Distância')] if get_value('Distância') else [],
+            url_inscricao=get_value('Link de Inscrição'),
+            url_imagem=get_value('Link da Imagem'),
+            categoria=get_value('Categoria')
         ) 

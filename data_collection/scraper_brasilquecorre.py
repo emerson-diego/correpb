@@ -1,4 +1,5 @@
 import csv
+import re
 import time
 
 from bs4 import BeautifulSoup
@@ -30,6 +31,9 @@ def get_event_data(driver):
         # Lista para armazenar os dados dos eventos
         event_data = []
         
+        # Padrão para identificar datas no formato brasileiro
+        data_pattern = re.compile(r'\d{1,2}\s+de\s+[A-Za-zçÇ]+\s+de\s+\d{4}')
+        
         for box in event_boxes:
             try:
                 # Extrair dados do evento
@@ -49,7 +53,8 @@ def get_event_data(driver):
                 for element in text_elements:
                     text = element.text.strip()
                     if text and not text.isspace():
-                        if 'de' in text and 'de' in text and 'de' in text:  # Data
+                        # Verificar se é uma data usando regex
+                        if data_pattern.search(text):
                             event_info['data'] = text
                         elif text.endswith('(corrida)') or text.endswith('(caminhada)') or text.endswith('(trail)') or text.endswith('(ultra)'):  # Distância
                             event_info['distancia'] = text
