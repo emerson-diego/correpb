@@ -69,33 +69,46 @@ def get_event_data(driver):
         
         for card in event_cards:
             try:
-                # Extrair nome do evento
-                nome_element = card.find_element(By.XPATH, ".//h6[contains(@class, 'fs-0')]")
-                nome_evento = nome_element.text
-                
-                # Extrair link do evento
-                link_element = card.find_element(By.XPATH, ".//a[contains(@href, 'evento')]")
-                link_evento = link_element.get_attribute('href')
-                
-                # Extrair imagem do evento
-                img_element = card.find_element(By.XPATH, ".//img[contains(@class, 'card-span-img')]")
-                link_imagem = img_element.get_attribute('src')
-                
-                # Extrair data do evento
-                data_element = card.find_element(By.XPATH, ".//h6[contains(@class, 'fs--2') and contains(text(), '/')]")
-                data_evento = data_element.text.strip()
-                
-                # Extrair local do evento
-                local_element = card.find_element(By.XPATH, ".//h6[contains(@class, 'fs--2') and contains(text(), ',')]")
-                local_evento = local_element.text.strip()
-                
-                # Extrair organizador do evento
-                try:
-                    org_element = card.find_element(By.XPATH, ".//a[contains(@href, 'organizador')]")
-                    organizador = org_element.text.strip()
-                except:
-                    organizador = ""
-                
+                # Função auxiliar para extrair texto com tratamento de erro
+                def get_text_safe(element, xpath):
+                    try:
+                        return element.find_element(By.XPATH, xpath).text.strip()
+                    except:
+                        return ''
+
+                # Função auxiliar para extrair atributo com tratamento de erro
+                def get_attribute_safe(element, xpath, attribute):
+                    try:
+                        return element.find_element(By.XPATH, xpath).get_attribute(attribute)
+                    except:
+                        return ''
+
+                # Extrair dados do evento
+                nome_evento = get_text_safe(card, ".//h6[contains(@class, 'fs-0')]")
+                link_evento = get_attribute_safe(card, ".//a[contains(@href, 'evento')]", 'href')
+                link_imagem = get_attribute_safe(card, ".//img[contains(@class, 'card-span-img')]", 'src')
+                data_evento = get_text_safe(card, ".//h6[contains(@class, 'fs--2') and contains(text(), '/')]")
+                local_evento = get_text_safe(card, ".//h6[contains(@class, 'fs--2') and contains(text(), ',')]")
+                organizador = get_text_safe(card, ".//a[contains(@href, 'organizador')]")
+
+                # Formatar a data para o padrão brasileiro
+                if data_evento and '/' in data_evento:
+                    try:
+                        dia, mes, ano = data_evento.split('/')
+                        meses = {
+                            '01': 'Janeiro', '02': 'Fevereiro', '03': 'Março',
+                            '04': 'Abril', '05': 'Maio', '06': 'Junho',
+                            '07': 'Julho', '08': 'Agosto', '09': 'Setembro',
+                            '10': 'Outubro', '11': 'Novembro', '12': 'Dezembro'
+                        }
+                        data_evento = f"{dia} de {meses[mes]} de {ano}"
+                    except:
+                        pass
+
+                # Extrair apenas a cidade do local (remover estado)
+                if local_evento and ',' in local_evento:
+                    local_evento = local_evento.split(',')[0].strip()
+
                 event_data.append({
                     'nome': nome_evento,
                     'link_inscricao': link_evento,
@@ -106,14 +119,14 @@ def get_event_data(driver):
                     'organizador': organizador
                 })
                 
-            except Exception:
-                # Silenciar erros individuais
+            except Exception as e:
+                print(f"❌ Erro ao processar card: {str(e)}")
                 continue
                 
         return event_data
         
-    except Exception:
-        # Silenciar erros gerais
+    except Exception as e:
+        print(f"❌ Erro ao buscar dados dos eventos: {str(e)}")
         return []
 
 def main():

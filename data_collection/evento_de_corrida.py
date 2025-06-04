@@ -49,15 +49,41 @@ class EventoDeCorrida:
             'distancias': self.distancias
         }
 
-        # Adiciona campos opcionais apenas se não forem None
-        if self.url_inscricao:
+        # Adiciona campos opcionais apenas se não forem None ou vazios
+        if self.url_inscricao and self.url_inscricao.strip():
             documento['url_inscricao'] = self.url_inscricao
-        if self.url_imagem:
+        if self.url_imagem and self.url_imagem.strip():
             documento['url_imagem'] = self.url_imagem
-        if self.categoria:
+        if self.categoria and self.categoria.strip():
             documento['categoria'] = self.categoria
 
         return documento
+
+    def __eq__(self, other):
+        """Compara dois eventos, ignorando campos específicos"""
+        if not isinstance(other, EventoDeCorrida):
+            return False
+            
+        # Campos a serem comparados
+        campos_comparacao = [
+            'nome_evento', 'data_realizacao', 'cidade', 'estado',
+            'organizador', 'site_coleta', 'distancias', 'url_inscricao',
+            'url_imagem', 'categoria'
+        ]
+        
+        # Compara cada campo
+        for campo in campos_comparacao:
+            valor_self = getattr(self, campo)
+            valor_other = getattr(other, campo)
+            
+            # Trata listas de forma especial
+            if isinstance(valor_self, list) and isinstance(valor_other, list):
+                if sorted(valor_self) != sorted(valor_other):
+                    return False
+            elif valor_self != valor_other:
+                return False
+                
+        return True
 
     @classmethod
     def from_csv_row(cls, row: dict, fonte: str) -> 'EventoDeCorrida':
@@ -67,7 +93,6 @@ class EventoDeCorrida:
             value = row.get(key, '')
             return value if value and value.strip() else ''
 
-        # Cria a instância mantendo a data como string
         return cls(
             nome_evento=get_value('Nome do Evento'),
             data_realizacao=get_value('Data'),
@@ -76,7 +101,7 @@ class EventoDeCorrida:
             organizador=get_value('Organizador'),
             site_coleta=fonte,
             data_coleta=datetime.now(),
-            distancias=[get_value('Distância')] if get_value('Distância') else [],
+            distancias=get_value('Distância'),
             url_inscricao=get_value('Link de Inscrição'),
             url_imagem=get_value('Link da Imagem'),
             categoria=get_value('Categoria')

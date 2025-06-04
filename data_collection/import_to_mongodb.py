@@ -16,8 +16,9 @@ def import_csv_to_mongodb(db, csv_file, fonte):
             # Ler o CSV com ponto e vírgula como separador
             reader = csv.DictReader(file, delimiter=';')
             
-            # Contador para novos eventos
+            # Contadores para eventos
             novos_eventos = 0
+            eventos_atualizados = 0
             
             # Converter cada linha para um documento MongoDB
             for row in reader:
@@ -29,9 +30,27 @@ def import_csv_to_mongodb(db, csv_file, fonte):
                     evento_existente = db.eventos.find_one({'nome_evento': evento.nome_evento})
                     
                     if not evento_existente:
-                        # Converter para dicionário e inserir no MongoDB
+                        # Se não existe, insere novo evento
                         db.eventos.insert_one(evento.to_dict())
                         novos_eventos += 1
+                    else:
+                        # Se existe, compara os campos
+                        evento_dict = evento.to_dict()
+                        evento_existente_dict = {k: v for k, v in evento_existente.items() if k != '_id'}
+                        
+                        # Remove campos que não devem ser comparados
+                        campos_nao_comparaveis = ['data_coleta']
+                        for campo in campos_nao_comparaveis:
+                            evento_dict.pop(campo, None)
+                            evento_existente_dict.pop(campo, None)
+                        
+                        # Se houver diferença em qualquer campo, atualiza
+                        if evento_dict != evento_existente_dict:
+                            db.eventos.update_one(
+                                {'nome_evento': evento.nome_evento},
+                                {'$set': evento.to_dict()}
+                            )
+                            eventos_atualizados += 1
                         
                 except Exception as e:
                     print(f"❌ Erro ao processar linha do CSV: {str(e)}")
@@ -40,6 +59,7 @@ def import_csv_to_mongodb(db, csv_file, fonte):
                 
         print(f"✅ Dados de {fonte} processados com sucesso")
         print(f"📝 {novos_eventos} novos eventos adicionados")
+        print(f"🔄 {eventos_atualizados} eventos atualizados")
         
     except Exception as e:
         print(f"❌ Erro ao importar dados de {fonte}: {str(e)}")
