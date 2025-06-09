@@ -8,7 +8,7 @@ class EventoDeCorrida:
     def __init__(
         self,
         nome_evento: str,
-        data_realizacao: str,
+        datas_realizacao: List[datetime],
         cidade: str,
         estado: str,
         organizador: str,
@@ -23,7 +23,7 @@ class EventoDeCorrida:
         # Propriedades obrigatórias
         self._id = _id
         self.nome_evento = nome_evento
-        self.data_realizacao = data_realizacao
+        self.datas_realizacao = datas_realizacao
         self.cidade = cidade
         self.estado = estado
         self.organizador = organizador
@@ -40,7 +40,7 @@ class EventoDeCorrida:
         """Converte o objeto para um dicionário compatível com MongoDB"""
         documento = {
             'nome_evento': self.nome_evento,
-            'data_realizacao': self.data_realizacao,
+            'datas_realizacao': self.datas_realizacao,
             'cidade': self.cidade,
             'estado': self.estado,
             'organizador': self.organizador,
@@ -66,7 +66,7 @@ class EventoDeCorrida:
             
         # Campos a serem comparados
         campos_comparacao = [
-            'nome_evento', 'data_realizacao', 'cidade', 'estado',
+            'nome_evento', 'datas_realizacao', 'cidade', 'estado',
             'organizador', 'site_coleta', 'distancias', 'url_inscricao',
             'url_imagem', 'categoria'
         ]
@@ -93,9 +93,36 @@ class EventoDeCorrida:
             value = row.get(key, '')
             return value if value and value.strip() else ''
 
+        # Converter datas para lista de datetime
+        data_str = get_value('Data')
+        datas_realizacao = []
+        if data_str:
+            try:
+                meses = {
+                    'janeiro': 1, 'fevereiro': 2, 'março': 3, 'abril': 4, 'maio': 5, 'junho': 6,
+                    'julho': 7, 'agosto': 8, 'setembro': 9, 'outubro': 10, 'novembro': 11, 'dezembro': 12
+                }
+                # Exemplo: '02, 03 e 15 de Agosto de 2025'
+                data_str = data_str.lower().replace('  ', ' ').replace(' e ', ', ')
+                partes = data_str.split(' de ')
+                if len(partes) == 3:
+                    dias = [d.strip() for d in partes[0].split(',')]
+                    mes = meses[partes[1].strip()]
+                    ano = int(partes[2])
+                    for dia in dias:
+                        try:
+                            datas_realizacao.append(datetime(ano, mes, int(dia)))
+                        except Exception:
+                            continue
+            except Exception:
+                pass
+        # Se não conseguiu converter, salva string original
+        if not datas_realizacao and data_str:
+            datas_realizacao = [data_str]
+
         return cls(
             nome_evento=get_value('Nome do Evento'),
-            data_realizacao=get_value('Data'),
+            datas_realizacao=datas_realizacao,
             cidade=get_value('Cidade'),
             estado='PB',  # Estado fixo para este projeto
             organizador=get_value('Organizador'),

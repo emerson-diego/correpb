@@ -50,18 +50,23 @@ def get_event_data(driver):
                 
                 # Metadados
                 text_elements = box.find_elements(By.CSS_SELECTOR, "div.text-editor p")
-                for element in text_elements:
+                distancias_encontradas = []
+                for idx, element in enumerate(text_elements):
                     text = element.text.strip()
                     if text and not text.isspace():
                         # Verificar se é uma data usando regex
                         if data_pattern.search(text):
                             event_info['data'] = text
-                        elif text.endswith('(corrida)') or text.endswith('(caminhada)') or text.endswith('(trail)') or text.endswith('(ultra)'):  # Distância
-                            event_info['distancia'] = text
-                        elif text.isupper() or text.endswith('RUN') or text.endswith('SPORTS'):  # Organizador
+                        elif text.endswith('(corrida)') or text.endswith('(caminhada)') or text.endswith('(trail)') or text.endswith('(ultra)') or '(corrida' in text or '(trail' in text or '(caminhada' in text or '(infantil' in text:
+                            distancias_encontradas.append(text)
+                        # Se for o último <p>, considerar como organizador
+                        elif idx == len(text_elements) - 1:
                             event_info['organizador'] = text
-                        else:  # Cidade
+                        # Preencher cidade apenas se ainda não foi preenchido
+                        elif 'cidade' not in event_info:
                             event_info['cidade'] = text
+                if distancias_encontradas:
+                    event_info['distancia'] = ', '.join(distancias_encontradas)
                 
                 event_data.append(event_info)
                 
