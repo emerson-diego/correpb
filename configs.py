@@ -1,7 +1,12 @@
 import json
-from bson import json_util
+import os
 
-MONGO_URI = 'mongodb://localhost:27018/'
+from bson import json_util
+from dotenv import load_dotenv
+
+load_dotenv()
+
+MONGODB_REMOTE_URI = os.getenv("MONGODB_REMOTE_URI")
 
 
 def convert_to_json(response):

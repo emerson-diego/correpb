@@ -1,6 +1,7 @@
-from datetime import date
+from datetime import datetime
 
 from mongo_helper import MongoHelper
+
 
 class Operations:
 
@@ -15,60 +16,70 @@ class Operations:
     @classmethod
     def eventos(
         cls,
-        nome: str | None,
+        nome_evento: str | None,
         cidade: str | None,
-        distancia: int | None,
-        organizacao: bool | None,
-        data_inicio: date | None,
-        data_fim: date | None,
+        estado: str | None,
+        organizador: str | None,
+        distancia: str | None,
+        data_realizacao_inicio: datetime | None,
+        data_realizacao_fim: datetime | None,
         order: dict | None,
     ):
         filtros = {}
 
-        if nome:
-            nome = {
-                "Nome do Evento": {
-                    "$regex": f".*{nome}.*",
+        if nome_evento:
+            nome_evento = {
+                "nome_evento": {
+                    "$regex": f".*{nome_evento}.*",
                     "$options": "i",
                 }
             }
-            filtros.update(nome)
+            filtros.update(nome_evento)
 
         if cidade:
             cidade = {
-                "Cidade": {
+                "cidade": {
                     "$regex": f".*{cidade}.*",
                     "$options": "i",
                 }
             }
             filtros.update(cidade)
 
+        if estado:
+            estado = {
+                "estado": {
+                    "$regex": f".*{estado}.*",
+                    "$options": "i",
+                }
+            }
+            filtros.update(estado)
+
+        if organizador:
+            organizador = {
+                "organizador": {
+                    "$regex": f".*{organizador}.*",
+                    "$options": "i",
+                }
+            }
+            filtros.update(organizador)
+
         if distancia:
             distancia = {
-                "Distância": {
+                "distancias": {
                     "$regex": f".*{distancia}.*",
                     "$options": "i",
                 }
             }
             filtros.update(distancia)
 
-        if organizacao:
-            organizacao = {
-                "Organizador": {
-                    "$regex": f".*{organizacao}.*",
-                    "$options": "i",
-                }
-            }
-            filtros.update(organizacao)
-
-        if data_inicio:
-            if not data_fim:
-                data_fim = datetime.now()
+        if data_realizacao_inicio:
+            if not data_realizacao_fim:
+                data_realizacao_fim = datetime.now()
 
             data_filtro = {
-                "data": {
-                    "$gte": data_inicio,
-                    "$lte": data_fim,
+                "datas_realizacao": {
+                    "$gte": data_realizacao_inicio,
+                    "$lte": data_realizacao_fim,
                 }
             }
 

@@ -3,7 +3,7 @@ from typing import Any, Dict, List, Optional
 from fastapi_pagination.ext.pymongo import paginate as pymongo_paginate
 from pymongo import MongoClient
 
-from configs import MONGO_URI
+from configs import MONGODB_REMOTE_URI
 
 
 class MongoHelper:
@@ -11,7 +11,7 @@ class MongoHelper:
     def __init__(
         self,
     ):
-        self._client: Optional[MongoClient] = MongoClient(MONGO_URI)
+        self._client: Optional[MongoClient] = MongoClient(MONGODB_REMOTE_URI)
         # fmt: off
         self._collection = self._client['corridas_db']['eventos']
 
