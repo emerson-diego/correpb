@@ -5,16 +5,17 @@ from dotenv import load_dotenv
 from pymongo import MongoClient
 
 # Carregar variáveis de ambiente do .env na raiz do projeto
-load_dotenv(Path(__file__).resolve().parent.parent / '.env')
+load_dotenv()
 
 # Conexão local
-LOCAL_URI = 'mongodb://localhost:27018/'
+LOCAL_URI = os.getenv("MONGODB_URI_LOCAL")
 local_client = MongoClient(LOCAL_URI)
 local_db = local_client['corridas_db']
 local_collection = local_db['eventos']
 
 # Conexão remota
-REMOTE_URI = os.getenv('MONGODB_REMOTE_URI')
+REMOTE_URI = os.getenv('MONGODB_URI')
+
 if not REMOTE_URI:
     raise Exception('A variável MONGODB_REMOTE_URI não está definida no .env')
 remote_client = MongoClient(REMOTE_URI)
