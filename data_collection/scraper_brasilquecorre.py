@@ -2,11 +2,8 @@ import csv
 import re
 import time
 
-from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.ui import WebDriverWait
 
 
 def setup_driver():
@@ -86,7 +83,7 @@ def main():
     
     try:
         # Criar arquivo CSV
-        with open('data_collection/eventos_brasilquecorre.csv', 'w', newline='', encoding='utf-8') as csvfile:
+        with open('eventos_brasilquecorre.csv', 'w', newline='', encoding='utf-8') as csvfile:
             writer = csv.writer(csvfile, delimiter=';')
             writer.writerow(['Nome do Evento', 'Link de Inscrição', 'Link da Imagem', 'Data', 'Cidade', 'Distância', 'Organizador'])
             

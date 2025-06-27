@@ -3,14 +3,9 @@ import os
 from dotenv import load_dotenv
 from pymongo import MongoClient
 
-# Carregar variáveis de ambiente do .env
-load_dotenv(os.path.join(os.path.dirname(__file__), '.env'))
+from data_collection._import_to_remote import local_collection
 
-# Conexão local
-LOCAL_URI = 'mongodb://localhost:27018/'
-local_client = MongoClient(LOCAL_URI)
-local_db = local_client['corridas_db']
-local_collection = local_db['eventos']
+load_dotenv()
 
 # Conexão remota
 REMOTE_URI = os.getenv('MONGODB_REMOTE_URI')

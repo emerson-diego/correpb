@@ -1,7 +1,12 @@
+import os
+from dotenv import load_dotenv
+
 from pymongo import MongoClient
 
+load_dotenv()
+
 # Conectar ao MongoDB
-client = MongoClient('mongodb://localhost:27018/')
+client = MongoClient(os.getenv("MONGODB_REMOTE_URI"))
 db = client['corridas_db']
 collection = db['eventos']
 
