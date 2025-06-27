@@ -29,7 +29,7 @@ venv/
 ENV/
 
 # Arquivos de log
-logs/*.log
+#logs/*.log
 
 # Dados coletados
 data/raw/*
