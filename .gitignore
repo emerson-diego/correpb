@@ -1,4 +1,48 @@
+# Arquivos de ambiente
 .env
-venv/
-env/
+
+# Diretórios Python
 __pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Diretórios virtuais
+venv/
+.venv/
+ENV/
+
+# Arquivos de log
+#logs/*.log
+
+# Dados coletados
+data/raw/*
+data/processed/*
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+
+# Arquivos de IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Arquivos do sistema
+.DS_Store
+Thumbs.db

@@ -1,13 +1,18 @@
 import csv
+import os
 from datetime import datetime
+
+from dotenv import load_dotenv
 
 from evento_de_corrida import EventoDeCorrida
 from pymongo import MongoClient
 
+# Tentar carregar do .env
+load_dotenv()
 
 def connect_mongodb():
     # Conectar ao MongoDB na porta 27018
-    client = MongoClient('mongodb://localhost:27018/')
+    client = MongoClient(os.getenv("MONGODB_URI"))
     return client['corridas_db']
 
 def import_csv_to_mongodb(db, csv_file, fonte):
@@ -70,8 +75,8 @@ def main():
         db = connect_mongodb()
         
         # Importar dados dos CSVs
-        import_csv_to_mongodb(db, 'data_collection/eventos_brasilcorrida.csv', 'brasilcorrida')
-        import_csv_to_mongodb(db, 'data_collection/eventos_brasilquecorre.csv', 'brasilquecorre')
+        import_csv_to_mongodb(db, 'eventos_brasilcorrida.csv', 'brasilcorrida')
+        # import_csv_to_mongodb(db, 'eventos_brasilquecorre.csv', 'brasilquecorre')
         
         # Contar documentos importados
         total = db.eventos.count_documents({})

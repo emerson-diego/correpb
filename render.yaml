@@ -1,0 +1,35 @@
+services:
+  - type: web
+    name: correpb
+    env: python
+    buildCommand: |
+      curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+      export PATH="$HOME/.cargo/bin:$PATH"
+      rustup default stable
+      pip install --upgrade pip
+      pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port 10000
+    plan: free
+    region: oregon
+    autoDeploy: true
+    envVars:
+      - key: ENV
+        value: developer
+      - key: MONGODB_URI
+        value: mongodb+srv://correpb:mestrado_projeto_bd_2025@cluster0.szqymc6.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
+      - key: MONGODB_DB_NAME
+        value: corridas_db
+      - key: API_HOST
+        value: 0.0.0.0
+      - key: API_PORT
+        value: 8181
+      - key: API_DEBUG
+        value: True
+      - key: LOG_LEVEL
+        value: INFO
+      - key: SCRAPER_USER_AGENT
+        value: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36
+      - key: SCRAPER_TIMEOUT
+        value: 30
+      - key: SCRAPER_DELAY
+        value: 1.0
