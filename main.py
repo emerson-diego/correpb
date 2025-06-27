@@ -4,6 +4,7 @@ import os
 
 from dotenv import load_dotenv
 from fastapi import FastAPI
+from contextlib import asynccontextmanager
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi_pagination import add_pagination
 
@@ -25,7 +26,6 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 
-# Criar aplicação FastAPI
 app = FastAPI(
     title=settings.PROJECT_NAME,
     description=settings.PROJECT_DESCRIPTION,
@@ -47,23 +47,20 @@ add_pagination(app)
 # Adicionar rotas
 app.include_router(eventos_router, prefix="/api/v1/eventos", tags=["eventos"])
 
-
-@app.on_event("startup")
-async def startup_db_client():
-    """Inicializa a conexão com o banco de dados na inicialização."""
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Inicialização
     try:
         await Database.connect()
         logger.info("Conexão com o banco de dados estabelecida")
     except Exception as e:
         logger.error(f"Erro ao conectar ao banco de dados: {e}")
 
+    yield
 
-@app.on_event("shutdown")
-async def shutdown_db_client():
-    """Fecha a conexão com o banco de dados no encerramento."""
+    # Finalização
     await Database.close()
     logger.info("Conexão com o banco de dados fechada")
-
 
 @app.get("/")
 async def root():
