@@ -5,14 +5,12 @@ from dotenv import load_dotenv
 from evento_de_corrida import EventoDeCorrida
 from pymongo import MongoClient
 
-# Tentar carregar do .env
-load_dotenv()
-
-# Carregar variáveis de ambiente do .env
-# load_dotenv(os.path.join(os.path.dirname(__file__), '.env'))
+# Carregar o .env da raiz do projeto
+env_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '.env'))
+load_dotenv(env_path)
 
 # Conexão remota (Atlas)
-REMOTE_URI = os.getenv('MONGODB_URI')
+REMOTE_URI = os.getenv('MONGODB_REMOTE_URI')
 if not REMOTE_URI:
     raise Exception('A variável MONGODB_REMOTE_URI não está definida no .env')
 remote_client = MongoClient(REMOTE_URI)
@@ -58,8 +56,11 @@ def import_csv_to_mongodb(db, csv_file, fonte):
 def main():
     try:
         db = remote_db
-        import_csv_to_mongodb(db, 'eventos_brasilcorrida.csv', 'brasilcorrida')
-        import_csv_to_mongodb(db, 'eventos_brasilquecorre.csv', 'brasilquecorre')
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        csv_brasilcorrida = os.path.join(base_dir, 'eventos_brasilcorrida.csv')
+        csv_brasilquecorre = os.path.join(base_dir, 'eventos_brasilquecorre.csv')
+        import_csv_to_mongodb(db, csv_brasilcorrida, 'brasilcorrida')
+        import_csv_to_mongodb(db, csv_brasilquecorre, 'brasilquecorre')
         total = db.eventos.count_documents({})
         print(f"\n📊 Total de eventos na base Atlas: {total}")
     except Exception as e:
