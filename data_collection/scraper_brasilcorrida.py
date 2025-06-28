@@ -5,8 +5,9 @@ import re
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support.wait import WebDriverWait
 from selenium.common.exceptions import TimeoutException, NoSuchElementException, StaleElementReferenceException
+from selenium.webdriver.common.action_chains import ActionChains
 
 
 def setup_driver():
@@ -48,8 +49,11 @@ def get_event_distance(driver, event_url):
 
         if all_distances:
             # Remover duplicatas e ordenar por tamanho (menor para maior)
-            unique_distances = sorted(set(all_distances),
-                                      key=lambda x: float(re.search(r'\d+', x).group()) if re.search(r'\d+', x) else 0)
+            def extract_number(text):
+                match = re.search(r'\d+', text)
+                return float(match.group()) if match else 0
+            
+            unique_distances = sorted(set(all_distances), key=extract_number)
             return ', '.join(unique_distances)
 
         return ''  # Retornar string vazia se não encontrar
@@ -75,16 +79,74 @@ def get_event_data(driver):
             )
             modalidade.click()
             time.sleep(2)
+            print("✅ Filtro 'Corrida de Rua' selecionado")
         except Exception as e:
             print(f"⚠️ Erro ao clicar no filtro de modalidade: {str(e)}")
 
-        # Clicar no botão de busca
+        # 1. Clicar na aba/filtro "Local"
+        try:
+            print("➡️ 1. Procurando e clicando na aba 'Local'...")
+            local_tab = WebDriverWait(driver, 10).until(
+                EC.element_to_be_clickable((By.XPATH, "//span[contains(text(), 'Local')]"))
+            )
+            local_tab.click()
+            time.sleep(1)
+            print("✅ Aba 'Local' selecionada")
+        except Exception as e:
+            print(f"❌ Erro ao clicar na aba 'Local': {str(e)}")
+
+        # 1. Selecionar o estado PB no campo customizado
+        try:
+            print("➡️ 1. Procurando o input de estado (com placeholder 'Selecione uma Cidade')...")
+            estado_input = WebDriverWait(driver, 10).until(
+                EC.element_to_be_clickable((By.XPATH, "//div[label[contains(text(), 'Estado')]]//input[@placeholder='Selecione uma Cidade']"))
+            )
+            estado_input.click()
+            print("✅ Input de estado clicado.")
+
+            # Digitar PB
+            estado_input.clear()
+            estado_input.send_keys("PB")
+            print("✅ 'PB' digitado no campo de estado.")
+            time.sleep(1)
+
+            # Esperar a lista de opções aparecer e clicar na opção PB
+            print("➡️ 2. Aguardando e clicando na opção PB na lista...")
+            pb_option = WebDriverWait(driver, 10).until(
+                EC.element_to_be_clickable((By.XPATH, "//div[contains(@class, 'selectize-dropdown-content')]//table[@data-value='PB']"))
+            )
+            actions = ActionChains(driver)
+            actions.move_to_element(pb_option).pause(0.5).click(pb_option).perform()
+            print("✅ Estado 'PB' selecionado com sucesso.")
+            time.sleep(2)
+        except Exception as e:
+            print(f"❌ Erro ao selecionar o estado 'PB': {str(e)}")
+
+    
+
+            # Tenta selecionar a sugestão se aparecer
+            try:
+                sugestao = WebDriverWait(driver, 5).until(
+                    EC.element_to_be_clickable((By.XPATH, "//div[contains(@class, 'autocomplete-suggestion') and contains(text(), 'Paraíba')]"))
+                )
+                sugestao.click()
+                print("✅ Sugestão 'Paraíba' selecionada")
+            except Exception:
+                print("⚠️ Sugestão automática não encontrada, continuando apenas com o texto digitado.")
+
+            print("✅ Campo de cidade preenchido com 'Paraíba'")
+  
+
+        # Clicar no botão de busca (pesquisa)
         try:
             search_button = WebDriverWait(driver, 10).until(
-                EC.element_to_be_clickable(
-                    (By.XPATH, "//button[contains(@class, 'btn-primary') and contains(@class, 'bg-administradora')]"))
+                EC.element_to_be_clickable((
+                    By.XPATH,
+                    "//button[contains(@class, 'btn-primary') and contains(@class, 'bg-administradora') and .//i[contains(@class, 'fa-search')]]"
+                ))
             )
             search_button.click()
+            print("✅ Botão de pesquisa clicado")
             time.sleep(3)
         except Exception as e:
             print(f"⚠️ Erro ao clicar no botão de busca: {str(e)}")
