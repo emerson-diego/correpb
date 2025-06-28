@@ -1,6 +1,7 @@
 import csv
 import time
 import re
+import os
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -261,10 +262,12 @@ def get_event_data(driver):
 def main():
     # Configurar driver
     driver = setup_driver()
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    csv_path = os.path.join(base_dir, 'eventos_brasilcorrida.csv')
 
     try:
         # Criar arquivo CSV
-        with open('eventos_brasilcorrida.csv', 'w', newline='', encoding='utf-8') as csvfile:
+        with open(csv_path, 'w', newline='', encoding='utf-8') as csvfile:
             writer = csv.writer(csvfile, delimiter=';')
             writer.writerow(
                 ['Nome do Evento', 'Link de Inscrição', 'Link da Imagem', 'Data', 'Cidade', 'Distância', 'Organizador'])
