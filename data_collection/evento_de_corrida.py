@@ -14,7 +14,7 @@ class EventoDeCorrida:
         organizador: str,
         site_coleta: str,
         data_coleta: datetime,
-        distancias: List[str],
+        distancias: str,
         url_inscricao: Optional[str] = None,
         url_imagem: Optional[str] = None,
         categoria: Optional[str] = None,
@@ -120,20 +120,18 @@ class EventoDeCorrida:
                             continue
             except Exception:
                 pass
-        # Se não conseguiu converter, salva string original
+        # Se não conseguiu converter, salva lista vazia
         if not datas_realizacao:
             datas_realizacao = []
 
         link_edital = get_value('link_edital') or get_value('Link do Edital')
 
-        # Garante que distancias seja uma lista de strings
+        # Garante que distancias seja uma string separada por vírgulas
         distancias_val = get_value('Distância')
-        if isinstance(distancias_val, str):
-            distancias = [d.strip() for d in distancias_val.split(',') if d.strip()]
-        elif isinstance(distancias_val, list):
-            distancias = distancias_val
+        if isinstance(distancias_val, list):
+            distancias = ', '.join([d.strip() for d in distancias_val if d.strip()])
         else:
-            distancias = []
+            distancias = str(distancias_val).strip()
 
         return cls(
             nome_evento=get_value('Nome do Evento'),
