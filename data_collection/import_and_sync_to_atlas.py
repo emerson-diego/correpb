@@ -28,6 +28,7 @@ def import_csv_to_mongodb(db, csv_file, fonte):
                     # Garante que o campo link_edital será passado, se existir no CSV
                     if 'Link do Edital' in row:
                         row['link_edital'] = row['Link do Edital']
+                    # O campo 'Categorias Premiadas' será tratado automaticamente pelo EventoDeCorrida
                     evento = EventoDeCorrida.from_csv_row(row, fonte)
                     evento_existente = db.eventos.find_one({'nome_evento': evento.nome_evento})
                     if not evento_existente:

@@ -19,6 +19,7 @@ class EventoDeCorrida:
         url_imagem: Optional[str] = None,
         categoria: Optional[str] = None,
         link_edital: Optional[str] = None,
+        categorias_premiadas: Optional[str] = None,
         _id: Optional[ObjectId] = None
     ):
         # Propriedades obrigatórias
@@ -37,6 +38,7 @@ class EventoDeCorrida:
         self.url_imagem = url_imagem
         self.categoria = categoria
         self.link_edital = link_edital
+        self.categorias_premiadas = categorias_premiadas
 
     def to_dict(self) -> dict:
         """Converte o objeto para um dicionário compatível com MongoDB"""
@@ -60,6 +62,8 @@ class EventoDeCorrida:
             documento['categoria'] = self.categoria
         if self.link_edital is not None:
             documento['link_edital'] = self.link_edital
+        if self.categorias_premiadas is not None:
+            documento['categorias_premiadas'] = self.categorias_premiadas
 
         return documento
 
@@ -125,6 +129,7 @@ class EventoDeCorrida:
             datas_realizacao = []
 
         link_edital = get_value('link_edital') or get_value('Link do Edital')
+        categorias_premiadas = get_value('Categorias Premiadas')
 
         # Garante que distancias seja uma string separada por vírgulas
         distancias_val = get_value('Distância')
@@ -145,5 +150,6 @@ class EventoDeCorrida:
             url_inscricao=get_value('Link de Inscrição'),
             url_imagem=get_value('Link da Imagem'),
             categoria=get_value('Categoria'),
-            link_edital=link_edital
+            link_edital=link_edital,
+            categorias_premiadas=categorias_premiadas
         ) 

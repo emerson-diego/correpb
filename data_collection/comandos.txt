@@ -1,3 +1,8 @@
  docker build -t mongo_bd:latest .
  docker run -d -p 27018:27018 --name mongo_bd-container mongo_bd:latest
  docker start mongo_bd-container
+
+ google-chrome --remote-debugging-port=9222 --user-data-dir=~/.config/google-chrome/Default
+ Start-Process "chrome.exe" -ArgumentList "--remote-debugging-port=9222", "--user-data-dir=C:\chrome-dev-profile"
+
+ python .\data_collection\extrai_categoria.py csv .\data_collection\eventos_brasilquecorre.csv

@@ -1,0 +1,14 @@
+Assunto: Extrair Categorias Premiadas de Edital de Corrida em PDF a partir de um Link
+
+Instruções:
+Execute as seguintes tarefas em sequência:
+
+Acesse e Extraia: Utilize suas ferramentas para acessar o link do edital em PDF fornecido abaixo. Baixe o conteúdo do arquivo e extraia todo o texto contido nele.
+
+Analise o Conteúdo: No texto extraído, localize a seção de "Premiação" (ou termos equivalentes como "Pódio", "Prêmios", etc.).
+
+Identifique e Filtre: Identifique exclusivamente as categorias que recebem premiação no pódio. Para cada categoria, combine a distância, o grupo (Geral, PCD, etc.) e o gênero. Ignore faixas etárias que servem apenas para classificação, a menos que o texto afirme explicitamente que elas têm premiação no pódio.
+
+Formate a Saída: Retorne o resultado final como uma única linha de texto, com cada categoria completa separada por uma vírgula. Não inclua cabeçalhos, introduções, números ou qualquer outra formatação.
+
+Link do Edital: {link}
