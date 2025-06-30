@@ -18,6 +18,7 @@ class EventoDeCorrida:
         url_inscricao: Optional[str] = None,
         url_imagem: Optional[str] = None,
         categoria: Optional[str] = None,
+        link_edital: Optional[str] = None,
         _id: Optional[ObjectId] = None
     ):
         # Propriedades obrigatórias
@@ -35,6 +36,7 @@ class EventoDeCorrida:
         self.url_inscricao = url_inscricao
         self.url_imagem = url_imagem
         self.categoria = categoria
+        self.link_edital = link_edital
 
     def to_dict(self) -> dict:
         """Converte o objeto para um dicionário compatível com MongoDB"""
@@ -56,6 +58,8 @@ class EventoDeCorrida:
             documento['url_imagem'] = self.url_imagem
         if self.categoria and self.categoria.strip():
             documento['categoria'] = self.categoria
+        if self.link_edital is not None:
+            documento['link_edital'] = self.link_edital
 
         return documento
 
@@ -117,8 +121,19 @@ class EventoDeCorrida:
             except Exception:
                 pass
         # Se não conseguiu converter, salva string original
-        if not datas_realizacao and data_str:
-            datas_realizacao = [data_str]
+        if not datas_realizacao:
+            datas_realizacao = []
+
+        link_edital = get_value('link_edital') or get_value('Link do Edital')
+
+        # Garante que distancias seja uma lista de strings
+        distancias_val = get_value('Distância')
+        if isinstance(distancias_val, str):
+            distancias = [d.strip() for d in distancias_val.split(',') if d.strip()]
+        elif isinstance(distancias_val, list):
+            distancias = distancias_val
+        else:
+            distancias = []
 
         return cls(
             nome_evento=get_value('Nome do Evento'),
@@ -128,8 +143,9 @@ class EventoDeCorrida:
             organizador=get_value('Organizador'),
             site_coleta=fonte,
             data_coleta=datetime.now(),
-            distancias=get_value('Distância'),
+            distancias=distancias,
             url_inscricao=get_value('Link de Inscrição'),
             url_imagem=get_value('Link da Imagem'),
-            categoria=get_value('Categoria')
+            categoria=get_value('Categoria'),
+            link_edital=link_edital
         ) 

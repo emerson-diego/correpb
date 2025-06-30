@@ -25,6 +25,9 @@ def import_csv_to_mongodb(db, csv_file, fonte):
             eventos_atualizados = 0
             for row in reader:
                 try:
+                    # Garante que o campo link_edital será passado, se existir no CSV
+                    if 'Link do Edital' in row:
+                        row['link_edital'] = row['Link do Edital']
                     evento = EventoDeCorrida.from_csv_row(row, fonte)
                     evento_existente = db.eventos.find_one({'nome_evento': evento.nome_evento})
                     if not evento_existente:
@@ -37,7 +40,15 @@ def import_csv_to_mongodb(db, csv_file, fonte):
                         for campo in campos_nao_comparaveis:
                             evento_dict.pop(campo, None)
                             evento_existente_dict.pop(campo, None)
+                        # Garante que ambos os dicionários tenham o campo 'link_edital' para comparação justa
+                        if 'link_edital' not in evento_existente_dict:
+                            evento_existente_dict['link_edital'] = ''
+                        if 'link_edital' not in evento_dict:
+                            evento_dict['link_edital'] = ''
                         if evento_dict != evento_existente_dict:
+                            print(f"Atualizando evento: {evento.nome_evento}")
+                            print(f"Antes: {evento_existente_dict}")
+                            print(f"Depois: {evento_dict}")
                             db.eventos.update_one(
                                 {'nome_evento': evento.nome_evento},
                                 {'$set': evento.to_dict()}

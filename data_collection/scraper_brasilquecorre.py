@@ -80,8 +80,26 @@ def get_event_data(driver):
 
                     if 'zeniteesportes.com' in domain:
                         try:
-                            reg_link = driver.find_element(By.XPATH, "//a[contains(translate(text(), 'REGULAMENTO', 'regulamento'), 'regulamento') or contains(@href, '.pdf')]")
-                            event_info['link_edital'] = reg_link.get_attribute('href')
+                            # Procura por links que contenham "regulamento" no texto ou que tenham onclick com PDF
+                            reg_links = driver.find_elements(By.XPATH, "//a[contains(translate(text(), 'REGULAMENTO', 'regulamento'), 'regulamento') or contains(@onclick, '.PDF') or contains(@onclick, '.pdf')]")
+                            
+                            for link in reg_links:
+                                # Verifica se tem onclick com PDF
+                                onclick = link.get_attribute('onclick')
+                                if onclick and ('.PDF' in onclick or '.pdf' in onclick):
+                                    # Extrai o URL do PDF do onclick
+                                    pdf_match = re.search(r"abrirPDF\('([^']+)'\)", onclick)
+                                    if pdf_match:
+                                        event_info['link_edital'] = pdf_match.group(1)
+                                        break
+                                # Se não tem onclick, verifica se o href é um PDF
+                                elif link.get_attribute('href') and ('.pdf' in link.get_attribute('href').lower() or '.PDF' in link.get_attribute('href')):
+                                    event_info['link_edital'] = link.get_attribute('href')
+                                    break
+                            
+                            # Se não encontrou nenhum link específico, mantém 'edital não encontrado'
+                            if event_info['link_edital'] == 'edital não encontrado':
+                                print(f"Não foi possível encontrar o link do edital para: {event_info.get('nome', '')}")
                         except Exception:
                             pass
 
