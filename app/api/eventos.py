@@ -87,3 +87,22 @@ async def obter_evento(id: str):
     except Exception as e:
         logger.error(f"Erro ao obter evento: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+    
+@router.get("/com-edital/lista", response_model=List[EventoResponse])
+async def listar_eventos_com_edital():
+    """
+    Lista eventos que possuem um edital disponível.
+    """
+    try:
+        filtro = {
+            "link_edital": {
+                "$exists": True,
+                "$ne": None,
+                "$ne": "Não disponível"
+            }
+        }
+
+        return await EventoService.listar_eventos_sem_paginacao(filtro=filtro)
+    except Exception as e:
+        logger.error(f"Erro ao listar eventos com edital: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
