@@ -40,6 +40,7 @@ class EventoBase(BaseModel):
     distancias: str  # Usando string para corresponder ao banco
     url_inscricao: str
     url_imagem: Optional[str] = None
+    categorias_premiadas: Optional[str] = None
 
 class EventoCreate(EventoBase):
     """Modelo para criação de eventos."""
@@ -58,6 +59,7 @@ class EventoUpdate(BaseModel):
     url_imagem: Optional[str] = None
     site_coleta: Optional[str] = None
     data_coleta: Optional[datetime] = None
+    categorias_premiadas: Optional[str] = None
 
 class EventoResponse(EventoBase):
     """Modelo para resposta de eventos."""
